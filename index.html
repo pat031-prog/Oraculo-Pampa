@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORACULO Pampa v2.0 - Strategic Foresight</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-primary: 'Roboto Mono', monospace;
+            --font-display: 'VT323', monospace;
+            --color-glow-primary: #f0abfc;
+            --color-glow-secondary: #26c6da;
+            --color-text: #e0e0e0;
+            --color-background: #0d051c;
+            --color-alert: #ef5350;
+        }
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            font-family: var(--font-primary);
+            overflow: hidden;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d051c; }
+        ::-webkit-scrollbar-thumb { background: #f0abfc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e040fb; }
+        .json-key { color: #26c6da; }
+        .json-string { color: #f0abfc; }
+        .json-number { color: #ffee58; }
+        .json-boolean { color: #66bb6a; }
+        .json-null { color: #ef5350; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        // Configure the worker for pdf.js to improve performance and avoid errors.
+        if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
+        }
+    </script>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

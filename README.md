@@ -118,6 +118,27 @@ La versión portable:
 
 Para más detalles, consulta README-PORTABLE.md.
 
+5.2. Tutorial para Windows + Anaconda
+
+Si usas Windows con Anaconda, tenemos tutoriales específicos:
+
+**Inicio Rápido (5 minutos):**
+- Lee: INICIO-RAPIDO-WINDOWS.md
+
+**Tutorial Completo (paso a paso):**
+- Lee: TUTORIAL-WINDOWS-ANACONDA.md
+
+**Validar Setup:**
+
+node test-setup.js
+
+
+Estos tutoriales cubren:
+- Instalación de Node.js con Anaconda
+- Configuración de múltiples APIs (Gemini, Groq, DeepInfra, etc.)
+- Uso del Monitor de Bifurcación
+- Solución de problemas comunes en Windows
+
 6. La Visión: De Prototipo a Paradigma
 
 "Oráculo Pampa" es más que una aplicación; es un prototipo de investigación. Demuestra que la arquitectura "GYOA Reflex Stack" es viable para crear agentes de IA especializados. Sirve como un "Echo Agent" de dominio específico que valida los principios de la computación eficiente y descentralizada en el borde, sentando las bases conceptuales para las arquitecturas "MMUL+Helix" (compresión simbólica) y "EchoNet" (redes de agentes descentralizados).

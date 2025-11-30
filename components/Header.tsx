@@ -10,7 +10,9 @@ const Header: React.FC = () => {
         let i = 0;
         const typeWriterInterval = setInterval(() => {
             if (i < fullLogoText.length) {
-                setLogoText(prev => prev + fullLogoText.charAt(i));
+                // Use Array.from to properly handle Unicode characters
+                const chars = Array.from(fullLogoText);
+                setLogoText(chars.slice(0, i + 1).join(''));
                 i++;
             } else {
                 clearInterval(typeWriterInterval);

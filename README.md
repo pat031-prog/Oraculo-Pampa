@@ -96,6 +96,28 @@ npm run dev
 Abrir la aplicación:
 Abre tu navegador y ve a http://localhost:3000 (o el puerto que Vite indique).
 
+5.1. Versión Portable
+
+Si prefieres una versión que requiera menos configuración y dependencias, existe una **versión portable** de Oráculo Pampa.
+
+Inicio rápido (Windows):
+
+INICIAR.bat
+
+
+Inicio rápido (Linux/Mac):
+
+./iniciar.sh
+
+
+La versión portable:
+- Requiere solo Node.js (sin instalar todas las dependencias de desarrollo)
+- Configura la API key mediante un prompt interactivo
+- Usa un servidor HTTP simple sin dependencias externas
+- Es ideal para distribución y uso rápido
+
+Para más detalles, consulta README-PORTABLE.md.
+
 6. La Visión: De Prototipo a Paradigma
 
 "Oráculo Pampa" es más que una aplicación; es un prototipo de investigación. Demuestra que la arquitectura "GYOA Reflex Stack" es viable para crear agentes de IA especializados. Sirve como un "Echo Agent" de dominio específico que valida los principios de la computación eficiente y descentralizada en el borde, sentando las bases conceptuales para las arquitecturas "MMUL+Helix" (compresión simbólica) y "EchoNet" (redes de agentes descentralizados).

@@ -6,9 +6,18 @@ import { GUARDIAN_SYSTEM_PROMPT } from '../constants';
 declare const window: any;
 
 const getApiKey = (): string => {
+    // First try to get from portable config (for portable version)
+    if (typeof window !== 'undefined' && (window as any).PortableConfig) {
+        const portableKey = (window as any).PortableConfig.getApiKey();
+        if (portableKey && portableKey !== 'NO_API_KEY_CONFIGURED') {
+            return portableKey;
+        }
+    }
+
+    // Fall back to environment variable (for development)
     const key = process.env.API_KEY;
     if (!key) {
-        console.error("API_KEY environment variable not set.");
+        console.error("API_KEY not configured. Please set your API key.");
         return "NO_API_KEY_CONFIGURED";
     }
     return key;

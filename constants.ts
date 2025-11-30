@@ -4,6 +4,7 @@ export const NAV_TABS: NavTab[] = [
     { id: 'resumen', label: 'Síntesis', icon: '🧬' },
     { id: 'live_analysis', label: 'Motor Guardián', icon: '📡' },
     { id: 'documentos', label: 'Análisis de Docs', icon: '📚' },
+    { id: 'bifurcation', label: 'Monitor de Bifurcación', icon: '🔬' },
     { id: 'indicadores', label: 'Indicadores Clave', icon: '📊' },
     { id: 'clima', label: 'Clima y Entropía Solar', icon: '🌞' },
     { id: 'campo_cannabis', label: 'Campo y Cannabis', icon: '🌱' },

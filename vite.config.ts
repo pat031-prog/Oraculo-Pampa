@@ -11,13 +11,27 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || '')
       },
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      build: {
+        outDir: 'dist-portable',
+        // Generate sourcemaps for debugging
+        sourcemap: false,
+        // Optimize chunks
+        rollupOptions: {
+          output: {
+            manualChunks: undefined,
+          }
+        },
+        // Copy portable-config.js to dist
+        copyPublicDir: true,
+      },
+      publicDir: 'public'
     };
 });

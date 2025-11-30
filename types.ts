@@ -1,4 +1,4 @@
-export type SectionId = 'resumen' | 'live_analysis' | 'indicadores' | 'clima' | 'campo_cannabis' | 'cultura' | 'proyecciones' | 'mapa_sistemico' | 'documentos';
+export type SectionId = 'resumen' | 'live_analysis' | 'indicadores' | 'clima' | 'campo_cannabis' | 'cultura' | 'proyecciones' | 'mapa_sistemico' | 'documentos' | 'bifurcation';
 
 export type AnalysisMode = 'nowcast' | 'foresight' | 'backtest';
 

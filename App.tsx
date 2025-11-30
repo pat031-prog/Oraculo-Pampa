@@ -13,6 +13,7 @@ import CulturaSection from './components/sections/CulturaSection';
 import ProyeccionesSection from './components/sections/ProyeccionesSection';
 import MapaSistemicoSection from './components/sections/MapaSistemicoSection';
 import DocumentAnalysisSection from './components/sections/DocumentAnalysisSection';
+import BifurcationMonitorSection from './components/sections/BifurcationMonitorSection';
 
 const App: React.FC = () => {
     const [activeSection, setActiveSection] = useState<SectionId>('resumen');
@@ -35,6 +36,7 @@ const App: React.FC = () => {
             case 'resumen': return <ResumenSection />;
             case 'live_analysis': return <LiveAnalysisSection />;
             case 'documentos': return <DocumentAnalysisSection />;
+            case 'bifurcation': return <BifurcationMonitorSection />;
             case 'indicadores': return <IndicadoresSection onOpenModal={handleOpenModal} />;
             case 'clima': return <ClimaSection onOpenModal={handleOpenModal} />;
             case 'campo_cannabis': return <CampoCannabisSection />;

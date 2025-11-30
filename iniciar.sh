@@ -63,7 +63,7 @@ fi
 echo "🚀 Iniciando servidor portable..."
 echo ""
 
-node servidor-portable.js
+node servidor-portable.cjs
 
 # Si el servidor falla
 if [ $? -ne 0 ]; then

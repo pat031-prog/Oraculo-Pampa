@@ -60,7 +60,7 @@ if not exist "dist-portable" (
 REM Iniciar el servidor
 echo Iniciando servidor portable...
 echo.
-node servidor-portable.js
+node servidor-portable.cjs
 
 if %ERRORLEVEL% NEQ 0 (
     echo.

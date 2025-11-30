@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "build:portable": "vite build",
-    "start:portable": "node servidor-portable.js"
+    "start:portable": "node servidor-portable.cjs"
   },
   "dependencies": {
     "react-dom": "^19.1.1",

@@ -9,19 +9,22 @@ interface NavPanelProps {
 
 const NavPanel: React.FC<NavPanelProps> = ({ activeSection, onShowSection }) => {
     return (
-        <nav className="flex flex-col gap-2.5 bg-[rgba(22,11,47,0.75)] border border-[rgba(240,171,252,0.2)] p-5 backdrop-blur-md rounded-lg overflow-y-auto max-lg:flex-row max-lg:flex-wrap max-lg:justify-center">
-            <div className="font-['VT323'] text-3xl text-[#f0abfc] mb-4 text-center w-full">Vectores Entrópicos</div>
+        <nav className="flex flex-col gap-2.5 bg-[rgba(10,30,50,0.85)] border-2 border-[rgba(0,255,136,0.4)] p-5 backdrop-blur-md rounded-sm overflow-y-auto shadow-[0_0_20px_rgba(0,255,136,0.15)] max-lg:flex-row max-lg:flex-wrap max-lg:justify-center">
+            <div className="font-['VT323'] text-3xl text-[#00ff88] mb-4 text-center w-full [text-shadow:0_0_8px_#00ff88] border-b-2 border-[rgba(0,255,136,0.3)] pb-3">
+                VECTORES ENTRÓPICOS
+            </div>
             {NAV_TABS.map(tab => (
                 <button
                     key={tab.id}
                     onClick={() => onShowSection(tab.id)}
-                    className={`w-full p-3 bg-transparent border border-[rgba(240,171,252,0.2)] rounded-md text-left transition-all duration-300 ease-in-out text-base max-lg:w-auto max-lg:flex-grow max-lg:text-center
-                        ${activeSection === tab.id 
-                            ? 'bg-[rgba(240,171,252,0.1)] text-white border-[rgba(240,171,252,0.5)]' 
-                            : 'text-[#e0e0e0] hover:bg-[rgba(240,171,252,0.05)] hover:text-white'
+                    className={`w-full p-3 bg-transparent border-2 rounded-sm text-left transition-all duration-200 ease-in-out text-base font-medium max-lg:w-auto max-lg:flex-grow max-lg:text-center
+                        ${activeSection === tab.id
+                            ? 'bg-[rgba(0,255,136,0.15)] text-[#00ff88] border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.4),inset_0_0_10px_rgba(0,255,136,0.1)] [text-shadow:0_0_8px_#00ff88]'
+                            : 'text-[#e8ffe8] border-[rgba(0,217,255,0.3)] hover:bg-[rgba(0,217,255,0.1)] hover:border-[rgba(0,217,255,0.6)] hover:text-[#00d9ff] hover:shadow-[0_0_10px_rgba(0,217,255,0.3)]'
                         }`}
                 >
-                    {tab.icon} {tab.label}
+                    <span className="text-lg mr-2">{tab.icon}</span>
+                    <span className="tracking-wide">{tab.label}</span>
                 </button>
             ))}
         </nav>

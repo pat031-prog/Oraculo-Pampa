@@ -7,17 +7,21 @@ const BackgroundEffects: React.FC = () => {
 
     useEffect(() => {
         const createParticles = () => {
-            const particleCount = 50;
+            const particleCount = 40;
             const newParticles = Array.from({ length: particleCount }).map((_, i) => {
-                const size = Math.random() * 3 + 1;
+                const size = Math.random() * 2 + 1;
+                const colorChoice = Math.random();
+                const color = colorChoice > 0.6 ? '#00ff88' : colorChoice > 0.3 ? '#00d9ff' : '#ffcc00';
                 const style = {
                     width: `${size}px`,
                     height: `${size}px`,
                     left: `${Math.random() * 100}vw`,
-                    animationDuration: `${Math.random() * 15 + 10}s`,
+                    animationDuration: `${Math.random() * 20 + 15}s`,
                     animationDelay: `${Math.random() * 10}s`,
+                    backgroundColor: color,
+                    boxShadow: `0 0 ${size * 3}px ${color}`,
                 };
-                return <div key={i} className="absolute bg-[#f0abfc] rounded-full opacity-0 animate-[rise_20s_infinite_linear]" style={style}></div>;
+                return <div key={i} className="absolute rounded-sm opacity-0 animate-[rise_20s_infinite_linear]" style={style}></div>;
             });
             setParticles(newParticles);
         };

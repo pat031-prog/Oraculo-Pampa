@@ -40,18 +40,18 @@ const Header: React.FC = () => {
 
 
     return (
-        <header className="col-span-full flex justify-between items-center px-6 bg-[rgba(22,11,47,0.75)] border border-[rgba(240,171,252,0.2)] backdrop-blur-md rounded-lg">
-            <div className="font-['VT323'] text-5xl text-[#f0abfc] [text-shadow:0_0_8px_var(--color-glow-primary)]">
-                {logoText}<span className="animate-ping">_</span>
+        <header className="col-span-full flex justify-between items-center px-6 bg-[rgba(10,30,50,0.85)] border-2 border-[rgba(0,255,136,0.4)] backdrop-blur-md rounded-sm shadow-[0_0_20px_rgba(0,255,136,0.2)]">
+            <div className="font-['VT323'] text-5xl text-[#00ff88] [text-shadow:0_0_12px_#00ff88,0_0_24px_#00ff88]">
+                {logoText}<span className="animate-pulse">_</span>
             </div>
             <div className="flex gap-8 text-right">
-                <div>
-                    <div className="text-2xl text-[#26c6da]">{time}</div>
-                    <div className="text-xs opacity-60 tracking-wider">HORA ARG</div>
+                <div className="border-l-2 border-[rgba(0,217,255,0.3)] pl-8">
+                    <div className="text-2xl font-bold text-[#00d9ff] [text-shadow:0_0_8px_#00d9ff]">{time}</div>
+                    <div className="text-xs text-[#ffcc00] tracking-[0.2em] font-semibold">HORA ARG</div>
                 </div>
-                <div>
-                    <div className="text-2xl text-[#26c6da]">173.2%</div>
-                    <div className="text-xs opacity-60 tracking-wider">EFICIENCIA SHANNON</div>
+                <div className="border-l-2 border-[rgba(0,217,255,0.3)] pl-8">
+                    <div className="text-2xl font-bold text-[#00d9ff] [text-shadow:0_0_8px_#00d9ff]">173.2%</div>
+                    <div className="text-xs text-[#ffcc00] tracking-[0.2em] font-semibold">EFICIENCIA SHANNON</div>
                 </div>
             </div>
         </header>

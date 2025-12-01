@@ -10,29 +10,93 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* GBA Retrofuturistic Palette */
             --font-primary: 'Roboto Mono', monospace;
             --font-display: 'VT323', monospace;
-            --color-glow-primary: #f0abfc;
-            --color-glow-secondary: #26c6da;
-            --color-text: #e0e0e0;
-            --color-background: #0d051c;
-            --color-alert: #ef5350;
+
+            /* Main GBA Colors */
+            --color-glow-primary: #00ff88;      /* GBA Lime Green */
+            --color-glow-secondary: #00d9ff;    /* GBA Electric Blue */
+            --color-accent-gold: #ffcc00;       /* GBA Golden Yellow */
+            --color-accent-orange: #ff6600;     /* GBA Orange */
+            --color-text: #e8ffe8;              /* Soft green-tinted white */
+            --color-background: #0a1428;        /* Deep navy blue */
+            --color-alert: #ff3366;             /* Hot pink alert */
+
+            /* UI Elements */
+            --color-panel-bg: rgba(10, 30, 50, 0.85);
+            --color-border: rgba(0, 255, 136, 0.4);
+            --color-border-active: rgba(0, 255, 136, 0.8);
         }
+
         body {
-            background-color: var(--color-background);
+            background: linear-gradient(180deg, #0a1428 0%, #1a2438 100%);
             color: var(--color-text);
             font-family: var(--font-primary);
             overflow: hidden;
+            position: relative;
         }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0d051c; }
-        ::-webkit-scrollbar-thumb { background: #f0abfc; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e040fb; }
-        .json-key { color: #26c6da; }
-        .json-string { color: #f0abfc; }
-        .json-number { color: #ffee58; }
-        .json-boolean { color: #66bb6a; }
-        .json-null { color: #ef5350; }
+
+        /* Scanline effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.3;
+        }
+
+        /* Pixel grid subtle effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 136, 0.03) 2px, rgba(0, 255, 136, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 255, 136, 0.03) 2px, rgba(0, 255, 136, 0.03) 4px);
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* Custom Scrollbar - GBA Style */
+        ::-webkit-scrollbar {
+            width: 10px;
+            background: #0a1428;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2438;
+            border: 1px solid var(--color-border);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--color-glow-primary) 0%, var(--color-glow-secondary) 100%);
+            border-radius: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-glow-primary);
+            box-shadow: 0 0 10px var(--color-glow-primary);
+        }
+
+        /* JSON Syntax Highlighting - GBA Colors */
+        .json-key { color: var(--color-glow-secondary); font-weight: 600; }
+        .json-string { color: var(--color-glow-primary); }
+        .json-number { color: var(--color-accent-gold); }
+        .json-boolean { color: var(--color-accent-orange); }
+        .json-null { color: var(--color-alert); }
     </style>
 <script type="importmap">
 {

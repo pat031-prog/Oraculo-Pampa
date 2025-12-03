@@ -8,11 +8,11 @@ const Header: React.FC = () => {
 
     useEffect(() => {
         let i = 0;
+        setLogoText('');
         const typeWriterInterval = setInterval(() => {
-            if (i < fullLogoText.length) {
-                setLogoText(prev => prev + fullLogoText.charAt(i));
-                i++;
-            } else {
+            i++;
+            setLogoText(fullLogoText.slice(0, i));
+            if (i === fullLogoText.length) {
                 clearInterval(typeWriterInterval);
             }
         }, 150);
@@ -48,8 +48,8 @@ const Header: React.FC = () => {
                     <div className="text-xs opacity-60 tracking-wider">HORA ARG</div>
                 </div>
                 <div>
-                    <div className="text-2xl text-[#26c6da]">173.2%</div>
-                    <div className="text-xs opacity-60 tracking-wider">EFICIENCIA SHANNON</div>
+                    <div className="text-2xl text-[#26c6da]">ONLINE</div>
+                    <div className="text-xs opacity-60 tracking-wider">ESTADO OPERATIVO</div>
                 </div>
             </div>
         </header>

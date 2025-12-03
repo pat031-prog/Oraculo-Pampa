@@ -17,9 +17,11 @@ const ProyeccionesSection: React.FC = () => {
     useEffect(() => {
         const fetchProjections = async () => {
             setIsLoading(true);
-            const promises = selectedProjections.map(p => 
-                generateContent(p.prompt).then(text => ({ id: p.id, text }))
-            );
+            const promises = selectedProjections.map(p => {
+                // Modified prompt to enforce Real-time data search
+                const realTimePrompt = `${p.prompt} IMPORTANTE: Usa Google Search para fundamentar esta proyección en eventos reales ocurridos en el último mes en Argentina.`;
+                return generateContent(realTimePrompt, true).then(text => ({ id: p.id, text }));
+            });
             
             try {
                 const results = await Promise.all(promises);
@@ -32,7 +34,7 @@ const ProyeccionesSection: React.FC = () => {
                 console.error("Failed to fetch Almanac projections", error);
                 const errorMap: Record<string, string> = {};
                 selectedProjections.forEach(p => {
-                    errorMap[p.id] = "Error al generar la proyección del Almanac.";
+                    errorMap[p.id] = "Error al conectar con la línea de tiempo. Reintentando...";
                 });
                 setProjectionsContent(errorMap);
             } finally {
@@ -47,10 +49,13 @@ const ProyeccionesSection: React.FC = () => {
 
     return (
         <div className="animate-[fadeIn_0.6s_ease-out]">
-            <h2 className="font-['VT323'] text-4xl text-[#f0abfc] mb-6 pb-2">Almanac: Análisis Dinámico</h2>
+            <h2 className="font-['VT323'] text-4xl text-[#f0abfc] mb-6 pb-2">Almanac: Proyecciones Vivas</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {isLoading ? (
-                    <div className="lg:col-span-2"><Spinner /></div>
+                    <div className="lg:col-span-2 text-center py-20">
+                        <Spinner />
+                        <p className="mt-4 text-[#26c6da] font-mono animate-pulse">Consultando líneas de tiempo probabilísticas (Search)...</p>
+                    </div>
                 ) : (
                     selectedProjections.map(p => (
                         <Panel key={p.id}>

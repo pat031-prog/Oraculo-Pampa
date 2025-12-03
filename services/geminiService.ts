@@ -1,3 +1,4 @@
+
 // FIX: Imported SearchResult type.
 import { GuardianAnalysisResult, SearchResult } from '../types';
 import { GUARDIAN_SYSTEM_PROMPT } from '../constants';
@@ -79,13 +80,18 @@ const initializeGenAI = () => {
 const ai = initializeGenAI();
 
 // FIX: Renamed generateSimpleContent to generateContent to match imports in components.
-export const generateContent = async (prompt: string): Promise<string> => {
+// UPDATED: Added useSearch parameter to enable Google Grounding.
+export const generateContent = async (prompt: string, useSearch: boolean = false): Promise<string> => {
     if (!ai) return "Error: Gemini client not initialized.";
     try {
+        const config = useSearch ? { tools: [{ googleSearch: {} }] } : undefined;
+        
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: config
         });
+        
         if (response.promptFeedback?.blockReason) {
              throw new Error(`Request blocked: ${response.promptFeedback.blockReason}`);
         }

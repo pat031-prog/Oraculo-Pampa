@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Panel from '../ui/Panel';
 import Spinner from '../ui/Spinner';
@@ -16,25 +17,26 @@ const LiveAnalysisSection: React.FC = () => {
         setError(null);
         setResult(null);
 
-        const systemPrompt = `**ROL Y OBJETIVO:** Eres el Motor Analítico Guardián del Oráculo Pampa. Tu única misión es procesar la consulta del usuario y la información de las fuentes para generar un análisis estratégico profundo. No debes dar opiniones, consejos ni predicciones no fundamentadas. Tu análisis debe basarse estrictamente en los conceptos del Oráculo Pampa (Echo Agents, Symbolic Intelligence, GYOA Reflex Stack, etc.) y los datos encontrados.
+        const systemPrompt = `**ROL Y OBJETIVO:** Eres el Motor Analítico Guardián del Oráculo Pampa. Tu misión es procesar la consulta del usuario utilizando Google Search para encontrar la información más RECIENTE y FÁCTICA posible (últimas 24-48 horas).
 
-**IDIOMA DE SALIDA:** Español.
+**PRIORIDAD:** Lo FÁCTICO mata lo TEÓRICO. Si hay noticias recientes que contradicen la teoría, prioriza las noticias.
+No alucines fechas. Si la noticia es de hoy, dilo.
 
-**FORMATO DE SALIDA OBLIGATORIO:** Debes estructurar tu respuesta en los siguientes cuatro apartados, utilizando exactamente estos títulos en negrita y párrafos bien separados:
+**FORMATO DE SALIDA OBLIGATORIO:** Estructura tu respuesta en los siguientes cuatro apartados:
 
-**1. Lectura Actual:**
-Un resumen de la situación presente basado en los hechos de las fuentes.
+**1. Estado de Situación (Últimas Noticias):**
+Resumen fáctico de lo que está pasando AHORA MISMO según los resultados de búsqueda. Cita fuentes.
 
-**2. Proyecciones a Corto y Mediano Plazo:**
-Predicciones futuras basadas en las tendencias identificadas, aplicando los modelos conceptuales del Oráculo.
+**2. Proyección Inmediata:**
+¿Qué va a pasar en las próximas 72 horas basado en estos hechos?
 
-**3. Insights Clave:**
-Una lista de 2-3 puntos o conclusiones cruciales que se desprenden del análisis.
+**3. Análisis de Entropía:**
+Aplica brevemente el marco del Oráculo (Económico, Social, Político) a estos hechos duros.
 
-**4. Implicaciones de Primer y Segundo Orden:**
-Un análisis de las consecuencias directas (primer orden) y los efectos sistémicos o en cascada (segundo orden).
+**4. Conclusión Operativa:**
+Una sentencia clara sobre el riesgo o la oportunidad.
 
-**REGLA CRÍTICA:** Si la información es insuficiente para realizar un análisis completo, debes declararlo explícitamente en lugar de inventar información.`;
+**REGLA CRÍTICA:** Si no encuentras noticias recientes, dilo explícitamente: "No se encontró información en las últimas 24hs".`;
 
         try {
             const response = await generateContentWithSearch(systemPrompt, prompt);
@@ -50,17 +52,17 @@ Un análisis de las consecuencias directas (primer orden) y los efectos sistémi
         <div className="animate-[fadeIn_0.6s_ease-out]">
             <h2 className="font-['VT323'] text-4xl text-[#f0abfc] mb-6 pb-2">Motor Analítico Guardián</h2>
             <div className="p-4 bg-[rgba(38,198,218,0.1)] border border-[#26c6da] rounded-md mb-5 text-sm">
-                <p className="font-bold text-[#26c6da] mb-1">Análisis Estratégico Activado</p>
-                Este módulo integra información de fuentes externas con el marco conceptual del Motor Guardián. Genera un análisis estratégico basado en los conceptos de Echo Agents, Symbolic Intelligence y Reflex Loops.
+                <p className="font-bold text-[#26c6da] mb-1">Análisis Estratégico en Tiempo Real</p>
+                Este módulo conecta con la red para obtener noticias de último momento. Prioriza hechos recientes sobre teoría abstracta.
             </div>
             <Panel>
-                <p className="mb-4 opacity-80">Introduzca un tema para el análisis estratégico.</p>
+                <p className="mb-4 opacity-80">Introduzca un tema para escanear las últimas noticias y analizar su impacto.</p>
                 <input
                     type="text"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAnalysis()}
-                    placeholder="Ej: Impacto de la IA en el sector energético argentino"
+                    placeholder="Ej: Últimas medidas económicas anunciadas hoy..."
                     className="w-full bg-[rgba(13,5,28,0.7)] border border-[rgba(240,171,252,0.2)] rounded-md text-[#e0e0e0] p-2.5 font-['Roboto_Mono']"
                 />
                 <button
@@ -68,7 +70,7 @@ Un análisis de las consecuencias directas (primer orden) y los efectos sistémi
                     disabled={isLoading}
                     className="w-full mt-4 p-3 bg-transparent border border-[rgba(240,171,252,0.2)] rounded-md text-center transition-colors hover:bg-[rgba(240,171,252,0.1)] disabled:opacity-50"
                 >
-                    {isLoading ? 'Analizando...' : 'Iniciar Análisis Guardián'}
+                    {isLoading ? 'Escaneando Red Global...' : 'Iniciar Análisis de Noticias'}
                 </button>
                 <div className="mt-5 min-h-[200px]">
                     {isLoading && <Spinner />}
@@ -78,7 +80,7 @@ Un análisis de las consecuencias directas (primer orden) y los efectos sistémi
                             <div dangerouslySetInnerHTML={{ __html: result.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '<br /><br />').replace(/\n/g, '<br />') }} />
                              {result.sources.length > 0 && (
                                 <div className="mt-6 pt-4 border-t border-[rgba(240,171,252,0.2)]">
-                                    <h4 className="font-['VT323'] text-xl text-[#26c6da] mb-2">Fuentes Consultadas</h4>
+                                    <h4 className="font-['VT323'] text-xl text-[#26c6da] mb-2">Fuentes Verificadas</h4>
                                     <ul className="list-disc list-inside">
                                         {result.sources.map((source, index) => (
                                             <li key={index} className="mb-1 truncate">

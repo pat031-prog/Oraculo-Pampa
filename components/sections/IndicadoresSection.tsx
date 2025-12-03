@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Panel from '../ui/Panel';
 import Spinner from '../ui/Spinner';
@@ -44,6 +43,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 const IndicadoresSection: React.FC<IndicadoresSectionProps> = ({ onOpenModal }) => {
     const [demographics, setDemographics] = useState<string>('');
+    const [contextAnalysis, setContextAnalysis] = useState<string>('');
     const [rechartsLoadStatus, setRechartsLoadStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
 
     useEffect(() => {
@@ -66,41 +66,49 @@ const IndicadoresSection: React.FC<IndicadoresSectionProps> = ({ onOpenModal }) 
     }, []);
 
     useEffect(() => {
-        const fetchDemographics = async () => {
-            const prompt = `Como Oráculo Pampa, genera una tabla en formato markdown con proyecciones demográficas para Argentina y 3 provincias clave (Buenos Aires, Córdoba, Santa Fe) para los años 2030 y 2040. Incluye la población total y el porcentaje de mayores de 65 años. No incluyas explicaciones, solo la tabla.`;
+        const fetchData = async () => {
+            // Demographics Table (Theoretical/Projections)
+            const demoPrompt = `Como Oráculo Pampa, genera una tabla en formato markdown con proyecciones demográficas para Argentina y 3 provincias clave (Buenos Aires, Córdoba, Santa Fe) para los años 2030 y 2040. Incluye la población total y el porcentaje de mayores de 65 años.`;
+            
+            // Real-Time Macro Entropy Context
+            const contextPrompt = `Usa Google Search para encontrar los últimos datos de inflación, riesgo país y reservas del BCRA de esta semana en Argentina. Genera un breve párrafo de "Contexto Entrópico" explicando si el sistema tiende al orden (estabilidad) o al caos (bifurcación) basado en estos números HOY.`;
+
             try {
-                const markdownTable = await generateContent(prompt);
-                
+                // Fetch Demographics
+                const markdownTable = await generateContent(demoPrompt);
                 const rows = markdownTable.trim().split('\n').filter(row => row.includes('|'));
                 const headerCells = rows[0].split('|').map(h => h.trim()).filter(Boolean);
                 const header = `<thead><tr class="border-b border-[rgba(240,171,252,0.15)]">${headerCells.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
-                
                 const bodyRows = rows.slice(2);
                 const body = `<tbody>${bodyRows.map(row => {
                     const cells = row.split('|').map(c => c.trim()).filter(Boolean);
                     return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`
                 }).join('')}</tbody>`;
-
                 setDemographics(`<table class="w-full text-left text-sm">${header}${body}</table>`);
 
+                // Fetch Context with Search
+                const contextText = await generateContent(contextPrompt, true);
+                setContextAnalysis(contextText);
+
             } catch (error) {
-                setDemographics('<p class="text-[#ef5350]">Error al cargar datos demográficos.</p>');
+                console.error(error);
+                setDemographics('<p class="text-[#ef5350]">Error al cargar datos.</p>');
             }
         };
-        fetchDemographics();
+        fetchData();
     }, []);
 
     const renderCharts = () => {
         if (rechartsLoadStatus === 'loading') {
-            return <div className="text-center"><p>Loading charting library...</p><Spinner /></div>;
+            return <div className="text-center"><p>Cargando módulos de visualización...</p><Spinner /></div>;
         }
         if (rechartsLoadStatus === 'error') {
-            return <div className="text-center text-red-500"><p>Error: Could not load the charting library. Please check your network connection and refresh.</p></div>;
+            return <div className="text-center text-red-500"><p>Error visualización.</p></div>;
         }
         return (
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <Panel>
-                    <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Composición del PBI (Estimado)</h3>
+                    <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Composición del PBI (Estructura)</h3>
                     <div className="h-72 cursor-pointer" onClick={() => onOpenModal('pbi')}>
                          <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -114,7 +122,7 @@ const IndicadoresSection: React.FC<IndicadoresSectionProps> = ({ onOpenModal }) 
                     </div>
                 </Panel>
                 <Panel>
-                    <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Deuda Provincial (% del Total)</h3>
+                    <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Deuda Provincial (Riesgo Sistémico)</h3>
                     <div className="h-72 cursor-pointer" onClick={() => onOpenModal('deuda')}>
                        <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -133,10 +141,22 @@ const IndicadoresSection: React.FC<IndicadoresSectionProps> = ({ onOpenModal }) 
 
     return (
         <div className="animate-[fadeIn_0.6s_ease-out]">
-            <h2 className="font-['VT323'] text-4xl text-[#f0abfc] mb-6 pb-2">Indicadores Clave</h2>
+            <h2 className="font-['VT323'] text-4xl text-[#f0abfc] mb-6 pb-2">Indicadores Clave & Macro-Entropía</h2>
+            
+            {/* NEW: Live Context Section */}
+            <Panel className="mb-6 border-l-4 border-l-[#f0abfc]">
+                <h3 className="text-lg text-[#f0abfc] mb-2 font-['VT323']">PULSO MACROECONÓMICO (LIVE DATA)</h3>
+                <div className="text-sm leading-relaxed opacity-90">
+                    {contextAnalysis ? 
+                        <div dangerouslySetInnerHTML={{ __html: contextAnalysis.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} /> 
+                        : <div className="flex items-center gap-3"><Spinner className="w-4 h-4 my-0" /> <span className="text-xs">Sincronizando con mercados...</span></div>}
+                </div>
+            </Panel>
+
             {renderCharts()}
+            
             <Panel className="mt-5">
-                <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Proyecciones Demográficas</h3>
+                <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Proyecciones Demográficas (Largo Plazo)</h3>
                 {demographics ? <div dangerouslySetInnerHTML={{ __html: demographics }} /> : <Spinner />}
             </Panel>
         </div>

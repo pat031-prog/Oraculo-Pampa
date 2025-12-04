@@ -1,8 +1,8 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import Panel from '../ui/Panel';
 import Spinner from '../ui/Spinner';
 import { generateContent } from '../../services/geminiService';
+import { GlobalAlert } from '../../types';
 
 declare const window: any;
 
@@ -25,7 +25,11 @@ interface ResourceMetric {
     status: string;
 }
 
-const ResumenSection: React.FC = () => {
+interface ResumenSectionProps {
+    globalAlert?: GlobalAlert | null;
+}
+
+const ResumenSection: React.FC<ResumenSectionProps> = ({ globalAlert }) => {
     const [alertText, setAlertText] = useState('');
     const [sitrepText, setSitrepText] = useState('');
     
@@ -152,15 +156,27 @@ const ResumenSection: React.FC = () => {
 
     return (
         <div className="animate-[fadeIn_0.6s_ease-out] h-full flex flex-col">
-            <h2 className="font-['VT323'] text-4xl text-[#f0abfc] mb-4 flex items-center gap-3">
+            <h2 className="font-['VT323'] text-2xl md:text-4xl text-[#f0abfc] mb-4 flex items-center gap-3">
                 <span className="inline-block w-3 h-3 bg-[#f0abfc] animate-pulse rounded-full"></span>
                 DASHBOARD OPERATIVO INTEGRADO (LIVE DATA)
             </h2>
             
-            {/* ALERT BANNER */}
-            <div className="bg-[rgba(239,83,80,0.15)] border-l-4 border-[#ef5350] p-3 mb-6 shadow-[0_0_20px_rgba(239,83,80,0.1)] flex items-center gap-4">
-                <span className="font-bold text-[#ef5350] font-mono text-xl blink">ALERTA PRIOV 1:</span>
-                <span className="text-white font-mono tracking-wide text-sm md:text-base uppercase">{alertText || "ESCANEANDO SEÑALES EN TIEMPO REAL..."}</span>
+            {/* SYSTEM PREDICTIVE OVERRIDE - Shows only if globalAlert exists */}
+            {globalAlert && (
+                <div className="bg-[#ef5350] bg-opacity-20 border border-[#ef5350] p-4 mb-4 rounded-md animate-[pulse_3s_infinite] shadow-[0_0_30px_rgba(239,83,80,0.3)]">
+                    <div className="flex justify-between items-center mb-1">
+                        <span className="font-bold text-[#ef5350] font-mono tracking-widest text-sm md:text-lg">⚠️ ALERTA DE SISTEMA PREDICTIVO</span>
+                        <span className="text-xs bg-[#ef5350] text-black px-2 py-0.5 rounded font-bold">{globalAlert.level}</span>
+                    </div>
+                    <div className="text-white font-mono text-lg md:text-xl uppercase mb-1">{globalAlert.message}</div>
+                    <div className="text-right text-xs text-[#ef5350] opacity-80 font-mono">FUENTE: {globalAlert.source}</div>
+                </div>
+            )}
+
+            {/* STANDARD NEWS BANNER */}
+            <div className="bg-[rgba(239,83,80,0.15)] border-l-4 border-[#ef5350] p-3 mb-6 shadow-[0_0_20px_rgba(239,83,80,0.1)] flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4">
+                <span className="font-bold text-[#ef5350] font-mono text-lg md:text-xl blink whitespace-nowrap">ALERTA PRIOV 1:</span>
+                <span className="text-white font-mono tracking-wide text-xs md:text-base uppercase">{alertText || "ESCANEANDO SEÑALES EN TIEMPO REAL..."}</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
@@ -228,7 +244,7 @@ const ResumenSection: React.FC = () => {
 
                 {/* COL 3: LIVE INTEL FEED (4 Cols wide) */}
                 <div className="lg:col-span-4">
-                    <Panel className="h-full flex flex-col max-h-[calc(100vh-200px)] lg:max-h-none overflow-hidden">
+                    <Panel className="h-full flex flex-col max-h-[350px] lg:max-h-none overflow-hidden">
                         <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323'] flex items-center gap-2">
                             <span className="animate-spin text-xs">↻</span> LIVE INTEL WIRE
                         </h3>

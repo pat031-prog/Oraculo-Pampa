@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 const Header: React.FC = () => {
@@ -38,18 +37,18 @@ const Header: React.FC = () => {
 
 
     return (
-        <header className="col-span-full flex justify-between items-center px-6 bg-[rgba(22,11,47,0.75)] border border-[rgba(240,171,252,0.2)] backdrop-blur-md rounded-lg">
-            <div className="font-['VT323'] text-5xl text-[#f0abfc] [text-shadow:0_0_8px_var(--color-glow-primary)]">
+        <header className="col-span-full flex flex-col md:flex-row justify-between items-center px-4 py-3 md:px-6 bg-[rgba(22,11,47,0.75)] border border-[rgba(240,171,252,0.2)] backdrop-blur-md rounded-lg gap-2 md:gap-0">
+            <div className="font-['VT323'] text-4xl md:text-5xl text-[#f0abfc] [text-shadow:0_0_8px_var(--color-glow-primary)] whitespace-nowrap">
                 {logoText}<span className="animate-ping">_</span>
             </div>
-            <div className="flex gap-8 text-right">
-                <div>
-                    <div className="text-2xl text-[#26c6da]">{time}</div>
-                    <div className="text-xs opacity-60 tracking-wider">HORA ARG</div>
+            <div className="flex gap-4 md:gap-8 text-right w-full md:w-auto justify-center md:justify-end border-t md:border-t-0 border-[rgba(240,171,252,0.1)] pt-2 md:pt-0">
+                <div className="flex flex-col items-center md:items-end">
+                    <div className="text-xl md:text-2xl text-[#26c6da] font-bold tracking-wider">{time}</div>
+                    <div className="text-[10px] md:text-xs opacity-60 tracking-wider">HORA ARG</div>
                 </div>
-                <div>
-                    <div className="text-2xl text-[#26c6da]">ONLINE</div>
-                    <div className="text-xs opacity-60 tracking-wider">ESTADO OPERATIVO</div>
+                <div className="flex flex-col items-center md:items-end">
+                    <div className="text-xl md:text-2xl text-[#26c6da] font-bold tracking-wider">ONLINE</div>
+                    <div className="text-[10px] md:text-xs opacity-60 tracking-wider">ESTADO OPERATIVO</div>
                 </div>
             </div>
         </header>

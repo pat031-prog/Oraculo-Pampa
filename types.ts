@@ -29,3 +29,9 @@ export interface Projection {
     prompt: string;
     tooltip: string;
 }
+
+export interface GlobalAlert {
+    message: string;
+    level: 'CRITICAL' | 'HIGH' | 'MODERATE';
+    source: string;
+}

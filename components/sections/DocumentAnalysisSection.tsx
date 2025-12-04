@@ -1,15 +1,18 @@
-
 import React, { useState, useCallback, useRef } from 'react';
 import Panel from '../ui/Panel';
 import Spinner from '../ui/Spinner';
 import { generateContentWithSearch } from '../../services/geminiService';
-import { SearchResult } from '../../types';
+import { SearchResult, GlobalAlert } from '../../types';
 import { OraculoCognitiveFramework, AnalysisLog } from '../../services/entropicMonitor';
 
 // Let TypeScript know about pdf.js on the window object
 declare const window: any;
 
-const DocumentAnalysisSection: React.FC = () => {
+interface DocumentAnalysisSectionProps {
+    onSetAlert: (alert: GlobalAlert) => void;
+}
+
+const DocumentAnalysisSection: React.FC<DocumentAnalysisSectionProps> = ({ onSetAlert }) => {
     const [files, setFiles] = useState<File[]>([]);
     const [userQuery, setUserQuery] = useState('');
     const [analysisResult, setAnalysisResult] = useState<SearchResult | null>(null);
@@ -88,6 +91,18 @@ const DocumentAnalysisSection: React.FC = () => {
         try {
             const { text: documentText, logs } = await extractTextFromPdfs(files);
             
+            // --- ALERT TRIGGER LOGIC ---
+            // Check for high anomalies (Z-Score > 2.0)
+            const anomaly = logs.find(log => log.isAnomaly);
+            if (anomaly) {
+                onSetAlert({
+                    message: `ANOMALÍA ENTRÓPICA (Z=${anomaly.zScore.toFixed(2)}) EN: ${anomaly.source}`,
+                    level: 'CRITICAL',
+                    source: 'MONITOR COGNITIVO (DOCUMENTOS)'
+                });
+            }
+            // ---------------------------
+
             setStatus('analyzing');
             setStatusMessage('Contexto extraído. Enviando al Motor Guardián para análisis...');
 

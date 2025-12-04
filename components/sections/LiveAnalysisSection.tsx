@@ -1,11 +1,14 @@
-
 import React, { useState } from 'react';
 import Panel from '../ui/Panel';
 import Spinner from '../ui/Spinner';
 import { generateContentWithSearch } from '../../services/geminiService';
-import { SearchResult } from '../../types';
+import { SearchResult, GlobalAlert } from '../../types';
 
-const LiveAnalysisSection: React.FC = () => {
+interface LiveAnalysisSectionProps {
+    onSetAlert: (alert: GlobalAlert) => void;
+}
+
+const LiveAnalysisSection: React.FC<LiveAnalysisSectionProps> = ({ onSetAlert }) => {
     const [prompt, setPrompt] = useState('');
     const [result, setResult] = useState<SearchResult | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +24,10 @@ const LiveAnalysisSection: React.FC = () => {
 
 **PRIORIDAD:** Lo FÁCTICO mata lo TEÓRICO. Si hay noticias recientes que contradicen la teoría, prioriza las noticias.
 No alucines fechas. Si la noticia es de hoy, dilo.
+
+**ACTIVACIÓN DE ALERTA PREDICTIVA:**
+Si la noticia encontrada implica un riesgo MUY ALTO (ej: Hiperinflación inminente, Estallido Social, Conflicto Bélico, Desastre Natural Agudo) para las próximas 48 horas, DEBES incluir al final de tu respuesta una etiqueta especial con este formato exacto:
+<<ALERT: TÍTULO CORTO DE LA ALERTA>>
 
 **FORMATO DE SALIDA OBLIGATORIO:** Estructura tu respuesta en los siguientes cuatro apartados:
 
@@ -41,6 +48,17 @@ Una sentencia clara sobre el riesgo o la oportunidad.
         try {
             const response = await generateContentWithSearch(systemPrompt, prompt);
             setResult(response);
+
+            // Check for Alert Tag in the response
+            const alertMatch = response.text.match(/<<ALERT:\s*(.*?)>>/);
+            if (alertMatch && alertMatch[1]) {
+                onSetAlert({
+                    message: alertMatch[1].trim().toUpperCase(),
+                    level: 'CRITICAL',
+                    source: 'MOTOR GUARDIÁN (LIVE NEWS)'
+                });
+            }
+
         } catch (e: any) {
             setError(e.message || "Ocurrió un error al realizar el análisis.");
         } finally {
@@ -77,7 +95,7 @@ Una sentencia clara sobre el riesgo o la oportunidad.
                     {error && <p className="text-[#ef5350]">{error}</p>}
                     {result && (
                         <div className="text-sm leading-relaxed opacity-95">
-                            <div dangerouslySetInnerHTML={{ __html: result.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '<br /><br />').replace(/\n/g, '<br />') }} />
+                            <div dangerouslySetInnerHTML={{ __html: result.text.replace(/<<ALERT:.*?>>/g, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '<br /><br />').replace(/\n/g, '<br />') }} />
                              {result.sources.length > 0 && (
                                 <div className="mt-6 pt-4 border-t border-[rgba(240,171,252,0.2)]">
                                     <h4 className="font-['VT323'] text-xl text-[#26c6da] mb-2">Fuentes Verificadas</h4>

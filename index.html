@@ -24,10 +24,36 @@
             font-family: var(--font-primary);
             overflow: hidden;
         }
-        ::-webkit-scrollbar { width: 8px; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0d051c; }
-        ::-webkit-scrollbar-thumb { background: #f0abfc; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e040fb; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f0abfc; }
+
+        /* Animations */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes spin-reverse-slow {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        @keyframes dash-flow {
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+            52% { opacity: 0.3; }
+            54% { opacity: 0.9; }
+        }
+        
+        .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+        .animate-spin-reverse-slow { animation: spin-reverse-slow 25s linear infinite; }
+        .animate-flicker { animation: flicker 4s infinite; }
+        
         .json-key { color: #26c6da; }
         .json-string { color: #f0abfc; }
         .json-number { color: #ffee58; }
@@ -51,7 +77,6 @@
     <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>
-        // Configure the worker for pdf.js to improve performance and avoid errors.
         if (window.pdfjsLib) {
             window.pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
         }

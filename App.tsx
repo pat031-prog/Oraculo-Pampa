@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { SectionId, ModalTopic } from './types';
+import { SectionId, ModalTopic, GlobalAlert } from './types';
 import NavPanel from './components/NavPanel';
 import Header from './components/Header';
 import BackgroundEffects from './components/BackgroundEffects';
@@ -18,6 +18,8 @@ import BifurcationMonitorSection from './components/sections/BifurcationMonitorS
 const App: React.FC = () => {
     const [activeSection, setActiveSection] = useState<SectionId>('resumen');
     const [modalTopic, setModalTopic] = useState<ModalTopic | null>(null);
+    const [globalAlert, setGlobalAlert] = useState<GlobalAlert | null>(null);
+    const [pdfContext, setPdfContext] = useState<string>('');
 
     const handleShowSection = useCallback((sectionId: SectionId) => {
         setActiveSection(sectionId);
@@ -31,29 +33,37 @@ const App: React.FC = () => {
         setModalTopic(null);
     }, []);
 
+    const handleSetAlert = useCallback((alert: GlobalAlert) => {
+        setGlobalAlert(alert);
+    }, []);
+
+    const handleContextUpdate = useCallback((context: string) => {
+        setPdfContext(context);
+    }, []);
+
     const renderSection = () => {
         switch (activeSection) {
-            case 'resumen': return <ResumenSection />;
-            case 'live_analysis': return <LiveAnalysisSection />;
-            case 'documentos': return <DocumentAnalysisSection />;
+            case 'resumen': return <ResumenSection globalAlert={globalAlert} />;
+            case 'live_analysis': return <LiveAnalysisSection onSetAlert={handleSetAlert} />;
+            case 'documentos': return <DocumentAnalysisSection onSetAlert={handleSetAlert} onContextUpdate={handleContextUpdate} />;
             case 'bifurcation': return <BifurcationMonitorSection />;
             case 'indicadores': return <IndicadoresSection onOpenModal={handleOpenModal} />;
             case 'clima': return <ClimaSection onOpenModal={handleOpenModal} />;
             case 'campo_cannabis': return <CampoCannabisSection />;
             case 'cultura': return <CulturaSection />;
-            case 'proyecciones': return <ProyeccionesSection />;
+            case 'proyecciones': return <ProyeccionesSection pdfContext={pdfContext} />;
             case 'mapa_sistemico': return <MapaSistemicoSection />;
-            default: return <ResumenSection />;
+            default: return <ResumenSection globalAlert={globalAlert} />;
         }
     };
 
     return (
         <>
             <BackgroundEffects />
-            <div className="h-screen w-screen grid grid-cols-[280px_1fr] grid-rows-[80px_1fr] gap-4 p-4 font-['Roboto_Mono'] max-lg:grid-cols-1 max-lg:grid-rows-[auto_auto_1fr] max-lg:h-auto max-lg:overflow-y-auto">
+            <div className="h-screen w-screen grid grid-cols-[280px_1fr] grid-rows-[80px_1fr] gap-3 md:gap-4 p-2 md:p-4 font-['Roboto_Mono'] max-lg:grid-cols-1 max-lg:grid-rows-[auto_auto_1fr] max-lg:h-auto max-lg:overflow-y-auto">
                 <Header />
                 <NavPanel activeSection={activeSection} onShowSection={handleShowSection} />
-                <main className="overflow-y-auto pr-2">
+                <main className="overflow-y-auto pr-0 md:pr-2">
                     {renderSection()}
                 </main>
             </div>

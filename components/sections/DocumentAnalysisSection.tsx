@@ -1,19 +1,28 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import Panel from '../ui/Panel';
 import Spinner from '../ui/Spinner';
 import { generateContentWithSearch } from '../../services/geminiService';
-import { SearchResult } from '../../types';
+import { SearchResult, GlobalAlert } from '../../types';
+import { OraculoCognitiveFramework, AnalysisLog } from '../../services/entropicMonitor';
 
 // Let TypeScript know about pdf.js on the window object
 declare const window: any;
 
-const DocumentAnalysisSection: React.FC = () => {
+interface DocumentAnalysisSectionProps {
+    onSetAlert: (alert: GlobalAlert) => void;
+}
+
+const DocumentAnalysisSection: React.FC<DocumentAnalysisSectionProps> = ({ onSetAlert }) => {
     const [files, setFiles] = useState<File[]>([]);
     const [userQuery, setUserQuery] = useState('');
     const [analysisResult, setAnalysisResult] = useState<SearchResult | null>(null);
     const [status, setStatus] = useState<'idle' | 'extracting' | 'analyzing' | 'error'>('idle');
     const [statusMessage, setStatusMessage] = useState('');
     const [error, setError] = useState<string | null>(null);
+    
+    // Cognitive Framework State
+    const [monitorLogs, setMonitorLogs] = useState<AnalysisLog[]>([]);
+    const monitorRef = useRef<OraculoCognitiveFramework>(new OraculoCognitiveFramework());
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -25,17 +34,23 @@ const DocumentAnalysisSection: React.FC = () => {
         setFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
     };
 
-    const extractTextFromPdfs = useCallback(async (pdfFiles: File[]): Promise<string> => {
+    const extractTextFromPdfs = useCallback(async (pdfFiles: File[]): Promise<{ text: string, logs: AnalysisLog[] }> => {
         if (!window.pdfjsLib) {
             throw new Error("PDF processing library not loaded.");
         }
 
         let combinedText = '';
+        const logs: AnalysisLog[] = [];
+        
+        // Reset monitor for new batch analysis if desired, or keep history. 
+        // Keeping history allows detecting anomalies relative to previous docs in the session.
+        // monitorRef.current.reset(); 
+
         for (const file of pdfFiles) {
             setStatusMessage(`Extrayendo texto de: ${file.name}`);
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await window.pdfjsLib.getDocument(arrayBuffer).promise;
-            let fileText = `\n--- START DOCUMENT: ${file.name} ---\n`;
+            let fileText = ''; // Raw text for this file
 
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
@@ -44,10 +59,19 @@ const DocumentAnalysisSection: React.FC = () => {
                 fileText += pageText + '\n';
             }
             
-            fileText += `--- END DOCUMENT: ${file.name} ---\n`;
+            // --- COGNITIVE FRAMEWORK PROCESSING ---
+            setStatusMessage(`Calculando Entropía de Kolmogorov y Bifurcación para: ${file.name}`);
+            const analysisLog = await monitorRef.current.processInput(file.name, fileText);
+            logs.push(analysisLog);
+            setMonitorLogs(prev => [...prev, analysisLog]);
+            // --------------------------------------
+
+            combinedText += `\n--- START DOCUMENT: ${file.name} ---\n`;
+            combinedText += `[METADATA: BifurcationIndex=${analysisLog.bifurcationIndex.toFixed(4)}, Z-Score=${analysisLog.zScore.toFixed(2)}]\n`;
             combinedText += fileText;
+            combinedText += `--- END DOCUMENT: ${file.name} ---\n`;
         }
-        return combinedText;
+        return { text: combinedText, logs };
     }, []);
 
     const handleAnalysis = async () => {
@@ -58,38 +82,63 @@ const DocumentAnalysisSection: React.FC = () => {
         
         setError(null);
         setAnalysisResult(null);
+        setMonitorLogs([]); // Clear visual logs for new run
+        monitorRef.current.reset(); // Reset statistical baseline for new run
+        
         setStatus('extracting');
         setStatusMessage('Iniciando extracción de texto de los PDFs...');
 
         try {
-            const documentText = await extractTextFromPdfs(files);
+            const { text: documentText, logs } = await extractTextFromPdfs(files);
             
+            // --- ALERT TRIGGER LOGIC ---
+            // Check for high anomalies (Z-Score > 2.0)
+            const anomaly = logs.find(log => log.isAnomaly);
+            if (anomaly) {
+                onSetAlert({
+                    message: `ANOMALÍA ENTRÓPICA (Z=${anomaly.zScore.toFixed(2)}) EN: ${anomaly.source}`,
+                    level: 'CRITICAL',
+                    source: 'MONITOR COGNITIVO (DOCUMENTOS)'
+                });
+            }
+            // ---------------------------
+
             setStatus('analyzing');
             setStatusMessage('Contexto extraído. Enviando al Motor Guardián para análisis...');
 
-            const systemPrompt = `**ROL Y OBJETIVO:** Eres el Motor Analítico Guardián del Oráculo Pampa. Tu misión es sintetizar y analizar los documentos PDF proporcionados por el usuario, contextualizándolos con información actual y confiable de la web. Debes generar predicciones y análisis estratégicos basados en el marco de la Quíntuple Entropía (Tecnológica, Económica, Social, Geopolítica, Astrofísica).
+            // Constructing a summary of the mathematical findings to guide the LLM
+            const metricSummary = logs.map(l => 
+                `- ${l.source}: Indice Bifurcación=${l.bifurcationIndex.toFixed(3)} (Z=${l.zScore.toFixed(2)}) -> ${l.isAnomaly ? 'ANOMALÍA DETECTADA' : 'Estable'}`
+            ).join('\n');
 
-**CONTEXTO PRIMARIO:** La verdad fundamental para tu análisis se encuentra en el contenido de los documentos subidos. La información externa debe usarse para complementar, validar y proyectar las ideas presentes en los textos, no para contradecirlas sin justificación.
+            const systemPrompt = `**ROL Y OBJETIVO:** Eres el Motor Analítico Guardián del Oráculo Pampa. Estás equipado con un "Monitor Entrópico" (Framework Cognitivo) que mide matemáticamente la complejidad de Kolmogorov y la deformación estructural de la información.
 
-**IDIOMA DE SALIDA:** Español.
+**FRAMEWORK COGNITIVO (DATOS DUROS):**
+El sistema ha pre-procesado los documentos y calculado las siguientes métricas de bifurcación:
+${metricSummary}
 
-**FORMATO DE SALIDA OBLIGATORIO:** Estructura tu respuesta en los siguientes apartados, usando exactamente estos títulos en negrita:
+**INSTRUCCIÓN:** Utiliza estas métricas matemáticas como guía. 
+- Si el Z-Score es alto (>2.0), trata ese documento como un "Cisne Negro" o una señal de ruptura sistémica.
+- Si la entropía es baja, trátalo como información lineal/continuista.
+- Tu misión es sintetizar la información y generar proyecciones basadas en la Teoría de la Quíntuple Entropía.
 
-**1. Síntesis Ejecutiva de Documentos:**
-Un resumen conciso de los puntos clave extraídos de los documentos proporcionados.
+**FORMATO DE SALIDA OBLIGATORIO:** Estructura tu respuesta en los siguientes apartados, utilizando exactamente estos títulos en negrita:
 
-**2. Análisis de Convergencia Entrópica:**
-Identifica cómo los temas de los documentos se mapean a los cinco vectores de la Quíntuple Entropía. Analiza las interacciones y tensiones entre estos vectores basándote en la información.
+**1. Lectura del Monitor Entrópico:**
+Interpreta los valores Z-Score y de bifurcación proporcionados arriba. ¿Qué documento introduce mayor caos o novedad al sistema?
 
-**3. Proyecciones y Escenarios Futuros:**
-Genera 2 o 3 escenarios probables a futuro, basados en la síntesis de los documentos y enriquecidos con datos actuales de la web. Indica los supuestos clave para cada escenario.
+**2. Síntesis Ejecutiva:**
+Resumen de los puntos clave, ponderando más aquellos provenientes de fuentes con alta "densidad entrópica" (novedad).
 
-**4. Insights Accionables y Puntos Ciegos:**
-Presenta una lista de 2-3 conclusiones críticas y accionables. Menciona también posibles "puntos ciegos" o riesgos que los documentos podrían no estar considerando, según tu análisis ampliado.
+**3. Análisis de Convergencia (5 Vectores):**
+Mapea la información a Tecnología, Economía, Social, Geopolítica, Astrofísica.
 
-**REGLA CRÍTICA:** Cita explícitamente ideas de los documentos cuando los uses. Si la información es insuficiente, decláralo y formula las preguntas clave que necesitarías responder para completar el análisis.`;
+**4. Proyecciones y Cisnes Negros:**
+Basado en las anomalías detectadas por el monitor, ¿qué escenario disruptivo es más probable?
+
+**REGLA CRÍTICA:** No inventes las métricas, usa las proporcionadas en este prompt.`;
             
-            const fullUserPrompt = `CONTEXTO DE DOCUMENTOS:\n${documentText}\n\nCONSULTA DEL USUARIO:\n"${userQuery}"\n\nPor favor, genera el análisis siguiendo tus instrucciones.`;
+            const fullUserPrompt = `CONTEXTO DE DOCUMENTOS PROCESADOS:\n${documentText}\n\nCONSULTA DEL USUARIO:\n"${userQuery}"`;
 
             const response = await generateContentWithSearch(systemPrompt, fullUserPrompt);
             setAnalysisResult(response);
@@ -108,7 +157,7 @@ Presenta una lista de 2-3 conclusiones críticas y accionables. Menciona tambié
 
     return (
         <div className="animate-[fadeIn_0.6s_ease-out]">
-            <h2 className="font-['VT323'] text-4xl text-[#f0abfc] mb-6 pb-2">Análisis de Documentos con Guardián</h2>
+            <h2 className="font-['VT323'] text-4xl text-[#f0abfc] mb-6 pb-2">Análisis de Documentos con Framework Cognitivo</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <Panel className="flex flex-col gap-4">
                     <div>
@@ -122,7 +171,7 @@ Presenta una lista de 2-3 conclusiones críticas y accionables. Menciona tambié
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                 aria-label="Cargar archivos PDF"
                              />
-                             <p className="text-gray-400">Arrastra y suelta tus archivos PDF aquí, o haz clic para seleccionar.</p>
+                             <p className="text-gray-400">Arrastra y suelta tus archivos PDF aquí.</p>
                         </div>
                     </div>
 
@@ -147,7 +196,7 @@ Presenta una lista de 2-3 conclusiones críticas y accionables. Menciona tambié
                         <textarea
                             value={userQuery}
                             onChange={(e) => setUserQuery(e.target.value)}
-                            placeholder="Ej: Basado en estos reportes, ¿cuál es el principal riesgo para la cadena de suministro de litio en los próximos 5 años?"
+                            placeholder="Ej: Detectar anomalías sistémicas en estos reportes..."
                             rows={4}
                             className="w-full bg-[rgba(13,5,28,0.7)] border border-[rgba(240,171,252,0.2)] rounded-md text-[#e0e0e0] p-2.5 font-['Roboto_Mono']"
                             aria-label="Consulta de análisis"
@@ -159,13 +208,33 @@ Presenta una lista de 2-3 conclusiones críticas y accionables. Menciona tambié
                         disabled={isLoading || files.length === 0 || !userQuery.trim()}
                         className="w-full p-3 bg-transparent border border-[rgba(240,171,252,0.2)] rounded-md text-center transition-colors hover:bg-[rgba(240,171,252,0.1)] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isLoading ? 'Procesando...' : 'Iniciar Análisis Guardián'}
+                        {isLoading ? 'Ejecutando Framework Cognitivo...' : 'Iniciar Análisis Entrópico'}
                     </button>
                 </Panel>
                 
-                <Panel>
-                     <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Análisis Generativo</h3>
-                     <div className="min-h-[400px] overflow-y-auto pr-2">
+                <Panel className="flex flex-col">
+                     <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Monitor Entrópico (Salida de Consola)</h3>
+                     
+                     {/* Console Output Visualization */}
+                     <div className="bg-black p-4 rounded-md font-mono text-xs mb-4 border border-[rgba(240,171,252,0.2)] min-h-[150px] max-h-[200px] overflow-y-auto">
+                        <div className="text-gray-500 border-b border-gray-800 pb-1 mb-2">root@oraculo-pampa:~/cognitive-framework# ./monitor.py</div>
+                        {monitorLogs.length === 0 && <div className="text-gray-600 italic">Esperando entrada de datos...</div>}
+                        {monitorLogs.map((log, i) => (
+                            <div key={i} className="mb-1">
+                                <span className="text-green-500">[{log.source}]</span> 
+                                <span className="text-[#26c6da]"> K-Ratio: {log.kRatio.toFixed(3)}</span>
+                                <span className="text-[#f0abfc]"> Bifurc: {log.bifurcationIndex.toFixed(3)}</span>
+                                <br/>
+                                <span className={`${log.isAnomaly ? 'text-[#ef5350] font-bold animate-pulse' : 'text-gray-400'}`}>
+                                    &gt;&gt; {log.status}
+                                </span>
+                            </div>
+                        ))}
+                        {isLoading && <div className="animate-pulse text-[#26c6da] mt-2">_ Procesando flujo de datos...</div>}
+                     </div>
+
+                     <h3 className="text-xl text-[#26c6da] mb-4 font-['VT323']">Síntesis Generativa</h3>
+                     <div className="flex-grow overflow-y-auto pr-2 min-h-[200px]">
                         {isLoading && (
                             <div className="text-center">
                                 <Spinner />

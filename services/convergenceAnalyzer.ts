@@ -20,6 +20,11 @@ export interface DomainEntropy {
     velocity: number; // Rate of change
     lastUpdated: Date;
     indicators: string[];
+    analysis: {
+        whatItMeasures: string;
+        howItManifests: string;
+        currentState: string;
+    };
 }
 
 export interface ConvergenceAnalysis {
@@ -161,7 +166,12 @@ export class ConvergenceAnalyzer {
                 trend: 'ascending',
                 velocity: this.calculateVelocity('tecnologico'),
                 lastUpdated: now,
-                indicators: ['IA Generativa', 'Quantum Computing', 'Biotech']
+                indicators: ['IA Generativa', 'Quantum Computing', 'Biotech'],
+                analysis: {
+                    whatItMeasures: 'Mide la tasa de disrupción tecnológica y la velocidad de adopción de innovaciones. Se cuantifica mediante: velocidad de inversión en I+D en sectores emergentes, número de patentes en tecnologías disruptivas, y tasa de obsolescencia de tecnologías existentes.',
+                    howItManifests: 'Una entropía alta se manifiesta como: aceleración en ciclos de innovación (GPT-4 a GPT-5 en 12 meses), disrupciones laborales masivas (automatización de roles cognitivos), fragmentación de estándares tecnológicos, y carreras armamentísticas en IA entre potencias.',
+                    currentState: 'El dominio muestra ascenso sostenido por la aceleración en IA generativa y computación cuántica. La competencia China-USA en semiconductores añade volatilidad geopolítica al vector tecnológico.'
+                }
             },
             {
                 domain: 'economico',
@@ -170,7 +180,12 @@ export class ConvergenceAnalyzer {
                 trend: 'ascending',
                 velocity: this.calculateVelocity('economico'),
                 lastUpdated: now,
-                indicators: ['Inflación Global', 'Deuda Soberana', 'Cripto Volatility']
+                indicators: ['Inflación Global', 'Deuda Soberana', 'Cripto Volatility'],
+                analysis: {
+                    whatItMeasures: 'Cuantifica la estabilidad del sistema financiero global mediante Transfer Entropy entre instituciones, volatilidad de tipos de cambio, y distribución de riesgo marginal (ΔCoVaR). Incluye métricas de deuda/PIB y flujos de capital transnacional.',
+                    howItManifests: 'Entropía elevada aparece como: crisis de deuda soberana (ej. Sri Lanka 2022), corridas bancarias (SVB 2023), desacople de mercados emergentes, quiebras en cascada de fondos de inversión, y fuga de capitales hacia refugios seguros.',
+                    currentState: 'Presión inflacionaria persistente en economías avanzadas combinada con niveles de deuda pública sin precedentes (>100% PIB en G7). El carry trade en mercados emergentes añade fragilidad sistémica.'
+                }
             },
             {
                 domain: 'social',
@@ -179,7 +194,12 @@ export class ConvergenceAnalyzer {
                 trend: 'stable',
                 velocity: this.calculateVelocity('social'),
                 lastUpdated: now,
-                indicators: ['Polarización', 'Migración', 'Desigualdad']
+                indicators: ['Polarización', 'Migración', 'Desigualdad'],
+                analysis: {
+                    whatItMeasures: 'Evalúa la cohesión social mediante índice de Gini, polarización del discurso público (análisis de sentiment en redes), tasa de migración forzada, y desconfianza institucional (encuestas Edelman Trust). Se monitorea la varianza en distribución del ingreso.',
+                    howItManifests: 'Alta entropía social se manifiesta como: protestas masivas (Chile 2019, Francia 2023), aumento de populismos extremos, fragmentación de consensos nacionales, crisis de refugiados, colapso de sistemas de salud pública, y aumento de violencia urbana.',
+                    currentState: 'Polarización creciente en democracias occidentales, pero estabilizada en última década. Presión migratoria desde África/LATAM hacia Europa/USA genera fricción, pero sin alcanzar umbrales críticos sistémicos aún.'
+                }
             },
             {
                 domain: 'geopolitico',
@@ -188,7 +208,12 @@ export class ConvergenceAnalyzer {
                 trend: 'ascending',
                 velocity: this.calculateVelocity('geopolitico'),
                 lastUpdated: now,
-                indicators: ['Multipolaridad', 'Conflictos Regionales', 'Supply Chain']
+                indicators: ['Multipolaridad', 'Conflictos Regionales', 'Supply Chain'],
+                analysis: {
+                    whatItMeasures: 'Analiza la estabilidad del orden internacional mediante: modularidad de la red de comercio global (formación de bloques), número de conflictos armados activos, sanciones económicas bilaterales, y entropía de grafos en alianzas militares (OTAN, BRICS+, SCO).',
+                    howItManifests: 'Entropía geopolítica alta genera: guerras proxy (Ucrania, Yemen), balcanización de cadenas de suministro (reshoring de semiconductores), weaponización de recursos críticos (gas ruso, litio chino), colapso de tratados multilaterales (OMC, ONU), y proliferación nuclear.',
+                    currentState: 'Transición acelerada hacia multipolaridad. Bloques China-Rusia vs USA-UE en consolidación. Medio Oriente en reconfiguración post-Abraham Accords. Taiwan como punto de inflexión potencial (ventana crítica 2025-2027).'
+                }
             },
             {
                 domain: 'climatico',
@@ -197,7 +222,12 @@ export class ConvergenceAnalyzer {
                 trend: 'ascending',
                 velocity: this.calculateVelocity('climatico'),
                 lastUpdated: now,
-                indicators: ['Eventos Extremos', 'Sequías', 'Temperatura Global']
+                indicators: ['Eventos Extremos', 'Sequías', 'Temperatura Global'],
+                analysis: {
+                    whatItMeasures: 'Cuantifica variabilidad climática mediante análisis de ondículas (wavelet) de temperatura global, frecuencia de eventos extremos (huracanes cat 5, olas de calor), anomalías de precipitación, y índice de estrés hídrico. Incluye actividad solar (manchas solares, índice Kp geomagnético).',
+                    howItManifests: 'Entropía climática elevada se manifiesta como: colapso de cosechas (sequía en cuenca del Paraná 2021-22), migraciones climáticas masivas, colapso de infraestructura hídrica, incendios forestales descontrolados, y disrupciones en logística global (sequías en Canal de Panamá).',
+                    currentState: 'Ciclo Solar 25 en fase ascendente (pico esperado 2025). La Niña recurrente generó sequías en Sudamérica y Australia. Temperatura global +1.2°C sobre baseline preindustrial. Eventos extremos 3x más frecuentes vs década 1980.'
+                }
             }
         ];
 

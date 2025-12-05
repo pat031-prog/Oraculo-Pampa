@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Panel from '../ui/Panel';
 import Spinner from '../ui/Spinner';
+import { Markdown } from '../../utils/markdown';
+import { cacheService } from '../../utils/cache';
 import {
     convergenceAnalyzer,
     DomainEntropy,
     ConvergenceAnalysis,
-    AlertLevel
+    AlertLevel,
+    DomainType
 } from '../../services/convergenceAnalyzer';
 
 const ConvergenceAnalysisSection: React.FC = () => {
@@ -13,14 +16,42 @@ const ConvergenceAnalysisSection: React.FC = () => {
     const [analysis, setAnalysis] = useState<ConvergenceAnalysis | null>(null);
     const [loading, setLoading] = useState(true);
     const [autoRefresh, setAutoRefresh] = useState(true);
+    const [expandedDomains, setExpandedDomains] = useState<Set<DomainType>>(new Set());
+
+    const toggleDomain = (domainId: DomainType) => {
+        setExpandedDomains(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(domainId)) {
+                newSet.delete(domainId);
+            } else {
+                newSet.add(domainId);
+            }
+            return newSet;
+        });
+    };
 
     const fetchAnalysis = useCallback(() => {
         setLoading(true);
+
+        // Try to get from cache first
+        const cachedDomains = cacheService.get<DomainEntropy[]>('convergence_domains');
+        const cachedAnalysis = cacheService.get<ConvergenceAnalysis>('convergence_analysis');
+
+        if (cachedDomains && cachedAnalysis) {
+            setDomains(cachedDomains);
+            setAnalysis(cachedAnalysis);
+            setLoading(false);
+            return;
+        }
 
         // Simulate async data fetch
         setTimeout(() => {
             const currentDomains = convergenceAnalyzer.getCurrentDomainStates();
             const currentAnalysis = convergenceAnalyzer.analyzeConvergence(currentDomains);
+
+            // Cache for 5 minutes
+            cacheService.set('convergence_domains', currentDomains, 5 * 60 * 1000);
+            cacheService.set('convergence_analysis', currentAnalysis, 5 * 60 * 1000);
 
             setDomains(currentDomains);
             setAnalysis(currentAnalysis);
@@ -169,58 +200,87 @@ const ConvergenceAnalysisSection: React.FC = () => {
 
             {/* Domain Entropy Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-                {domains.map((domain) => (
-                    <Panel key={domain.domain}>
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#00ff88] [text-shadow:0_0_8px_#00ff88]">
-                                        {domain.label}
-                                    </h3>
-                                    <div className="text-xs sm:text-sm text-[#00d9ff] mt-1">
-                                        {getTrendIcon(domain.trend)} Tendencia: {domain.trend}
+                {domains.map((domain) => {
+                    const isExpanded = expandedDomains.has(domain.domain);
+                    return (
+                        <Panel key={domain.domain}>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#00ff88] [text-shadow:0_0_8px_#00ff88]">
+                                            {domain.label}
+                                        </h3>
+                                        <div className="text-xs sm:text-sm text-[#00d9ff] mt-1">
+                                            {getTrendIcon(domain.trend)} Tendencia: {domain.trend}
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${getEntropyColorClass(domain.entropy)}`}>
+                                            {domain.entropy.toFixed(1)}%
+                                        </div>
+                                        <div className="text-xs text-[#ffcc00]">
+                                            Δ {domain.velocity >= 0 ? '+' : ''}{domain.velocity.toFixed(2)}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <div className={`text-2xl sm:text-3xl md:text-4xl font-bold ${getEntropyColorClass(domain.entropy)}`}>
-                                        {domain.entropy.toFixed(1)}%
+
+                                {/* Entropy Bar */}
+                                <div className="w-full bg-[rgba(10,30,50,0.5)] rounded-sm overflow-hidden h-3 sm:h-4 border border-[rgba(0,255,136,0.3)]">
+                                    <div
+                                        className="h-full transition-all duration-500"
+                                        style={{
+                                            width: `${domain.entropy}%`,
+                                            backgroundColor: domain.entropy >= 75 ? '#ff3366' : domain.entropy >= 60 ? '#ffcc00' : '#00ff88',
+                                            boxShadow: `0 0 10px ${domain.entropy >= 75 ? '#ff3366' : domain.entropy >= 60 ? '#ffcc00' : '#00ff88'}`
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Indicators */}
+                                <div className="flex flex-wrap gap-1 sm:gap-2">
+                                    {domain.indicators.map((indicator, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="text-xs px-2 py-1 bg-[rgba(0,217,255,0.1)] border border-[rgba(0,217,255,0.3)] text-[#00d9ff] rounded-sm"
+                                        >
+                                            {indicator}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                {/* Toggle Analysis Button */}
+                                <button
+                                    onClick={() => toggleDomain(domain.domain)}
+                                    className="w-full px-3 py-2 text-xs sm:text-sm border-2 border-[rgba(0,217,255,0.3)] text-[#00d9ff] hover:bg-[rgba(0,217,255,0.1)] hover:border-[#00d9ff] rounded-sm transition-all flex items-center justify-center gap-2"
+                                >
+                                    {isExpanded ? '▲ Ocultar Análisis' : '▼ Ver Análisis Detallado'}
+                                </button>
+
+                                {/* Detailed Analysis (Expandable) */}
+                                {isExpanded && (
+                                    <div className="border-t-2 border-[rgba(0,255,136,0.2)] pt-3 space-y-3">
+                                        <div>
+                                            <h4 className="text-sm font-bold text-[#ffcc00] mb-2">📊 Qué Mide</h4>
+                                            <Markdown className="text-xs sm:text-sm">{domain.analysis.whatItMeasures}</Markdown>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-[#ffcc00] mb-2">⚡ Cómo se Manifiesta</h4>
+                                            <Markdown className="text-xs sm:text-sm">{domain.analysis.howItManifests}</Markdown>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-[#ffcc00] mb-2">🔍 Estado Actual</h4>
+                                            <Markdown className="text-xs sm:text-sm">{domain.analysis.currentState}</Markdown>
+                                        </div>
                                     </div>
-                                    <div className="text-xs text-[#ffcc00]">
-                                        Δ {domain.velocity >= 0 ? '+' : ''}{domain.velocity.toFixed(2)}
-                                    </div>
+                                )}
+
+                                <div className="text-xs text-[rgba(255,255,255,0.5)]">
+                                    Última actualización: {new Date(domain.lastUpdated).toLocaleTimeString('es-AR')}
                                 </div>
                             </div>
-
-                            {/* Entropy Bar */}
-                            <div className="w-full bg-[rgba(10,30,50,0.5)] rounded-sm overflow-hidden h-3 sm:h-4 border border-[rgba(0,255,136,0.3)]">
-                                <div
-                                    className="h-full transition-all duration-500"
-                                    style={{
-                                        width: `${domain.entropy}%`,
-                                        backgroundColor: domain.entropy >= 75 ? '#ff3366' : domain.entropy >= 60 ? '#ffcc00' : '#00ff88',
-                                        boxShadow: `0 0 10px ${domain.entropy >= 75 ? '#ff3366' : domain.entropy >= 60 ? '#ffcc00' : '#00ff88'}`
-                                    }}
-                                />
-                            </div>
-
-                            {/* Indicators */}
-                            <div className="flex flex-wrap gap-1 sm:gap-2">
-                                {domain.indicators.map((indicator, idx) => (
-                                    <span
-                                        key={idx}
-                                        className="text-xs px-2 py-1 bg-[rgba(0,217,255,0.1)] border border-[rgba(0,217,255,0.3)] text-[#00d9ff] rounded-sm"
-                                    >
-                                        {indicator}
-                                    </span>
-                                ))}
-                            </div>
-
-                            <div className="text-xs text-[rgba(255,255,255,0.5)]">
-                                Última actualización: {new Date(domain.lastUpdated).toLocaleTimeString('es-AR')}
-                            </div>
-                        </div>
-                    </Panel>
-                ))}
+                        </Panel>
+                    );
+                })}
             </div>
 
             {/* Methodology Note */}

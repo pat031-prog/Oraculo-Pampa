@@ -33,8 +33,11 @@
             background: linear-gradient(180deg, #0a1428 0%, #1a2438 100%);
             color: var(--color-text);
             font-family: var(--font-primary);
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Scanline effect */
@@ -74,8 +77,14 @@
 
         /* Custom Scrollbar - GBA Style */
         ::-webkit-scrollbar {
-            width: 10px;
+            width: 6px;
             background: #0a1428;
+        }
+
+        @media (min-width: 768px) {
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
         }
         ::-webkit-scrollbar-track {
             background: #1a2438;

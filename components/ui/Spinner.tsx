@@ -7,7 +7,7 @@ interface SpinnerProps {
 
 const Spinner: React.FC<SpinnerProps> = ({ className = '' }) => {
     return (
-        <div className={`border-4 border-[rgba(38,198,218,0.2)] border-l-[#26c6da] rounded-full w-10 h-10 animate-spin mx-auto my-12 ${className}`}></div>
+        <div className={`border-4 border-[rgba(0,255,136,0.2)] border-l-[#00ff88] rounded-full w-8 h-8 sm:w-10 sm:h-10 animate-spin mx-auto my-8 sm:my-12 shadow-[0_0_15px_rgba(0,255,136,0.5)] ${className}`}></div>
     );
 };
 

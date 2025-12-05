@@ -14,6 +14,7 @@ import ProyeccionesSection from './components/sections/ProyeccionesSection';
 import MapaSistemicoSection from './components/sections/MapaSistemicoSection';
 import DocumentAnalysisSection from './components/sections/DocumentAnalysisSection';
 import BifurcationMonitorSection from './components/sections/BifurcationMonitorSection';
+import ConvergenceAnalysisSection from './components/sections/ConvergenceAnalysisSection';
 
 const App: React.FC = () => {
     const [activeSection, setActiveSection] = useState<SectionId>('resumen');
@@ -44,6 +45,7 @@ const App: React.FC = () => {
     const renderSection = () => {
         switch (activeSection) {
             case 'resumen': return <ResumenSection globalAlert={globalAlert} />;
+            case 'convergencia': return <ConvergenceAnalysisSection />;
             case 'live_analysis': return <LiveAnalysisSection onSetAlert={handleSetAlert} />;
             case 'documentos': return <DocumentAnalysisSection onSetAlert={handleSetAlert} onContextUpdate={handleContextUpdate} />;
             case 'bifurcation': return <BifurcationMonitorSection />;
@@ -60,10 +62,10 @@ const App: React.FC = () => {
     return (
         <>
             <BackgroundEffects />
-            <div className="h-screen w-screen grid grid-cols-[280px_1fr] grid-rows-[80px_1fr] gap-3 md:gap-4 p-2 md:p-4 font-['Roboto_Mono'] max-lg:grid-cols-1 max-lg:grid-rows-[auto_auto_1fr] max-lg:h-auto max-lg:overflow-y-auto">
+            <div className="min-h-screen w-screen grid grid-cols-1 lg:grid-cols-[280px_1fr] grid-rows-[auto_auto_1fr] lg:grid-rows-[auto_1fr] gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 font-['Roboto_Mono'] overflow-x-hidden">
                 <Header />
                 <NavPanel activeSection={activeSection} onShowSection={handleShowSection} />
-                <main className="overflow-y-auto pr-0 md:pr-2">
+                <main className="overflow-y-auto overflow-x-hidden pr-0 md:pr-2 pb-4">
                     {renderSection()}
                 </main>
             </div>

@@ -2,6 +2,7 @@ import { NavTab, Projection } from './types';
 
 export const NAV_TABS: NavTab[] = [
     { id: 'resumen', label: 'Síntesis', icon: '🧬' },
+    { id: 'convergencia', label: 'Convergencia 5D', icon: '🌐' },
     { id: 'live_analysis', label: 'Motor Guardián', icon: '📡' },
     { id: 'documentos', label: 'Análisis de Docs', icon: '📚' },
     { id: 'bifurcation', label: 'Monitor de Bifurcación', icon: '🔬' },
